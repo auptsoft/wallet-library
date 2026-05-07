@@ -18,7 +18,7 @@ jobs:
       - name: Pack
         run: |
           dotnet build Wallet.Contract/Wallet.Contract.csproj -c Release
-          dotnet build Wallet.Core/Wallet.Core.csproj -c Release -o
+          dotnet build Wallet.Core/Wallet.Core.csproj -c Release
           dotnet build Wallet.Infrastructure/Wallet.Infrastructure.csproj -c Release
           
           dotnet pack Wallet.Contract/Wallet.Contract.csproj -c Release -o ./nupkgs
