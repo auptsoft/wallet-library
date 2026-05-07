@@ -10,10 +10,10 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("YourName")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("Andrew Oshodin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3fe059bce9f93791a7ff796da38367403f16c0c5")]
 [assembly: System.Reflection.AssemblyProductAttribute("Wallet.Contract")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Wallet.Contract")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,0 +1,28 @@
+name: Publish NuGet Packages
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Pack
+        run: |
+          dotnet pack Wallet.Contract/Wallet.Contract.csproj -c Release -o ./nupkgs
+          dotnet pack Wallet.Core/Wallet.Core.csproj -c Release -o ./nupkgs
+          dotnet pack Wallet.Infrastructure/Wallet.Infrastructure.csproj -c Release -o ./nupkgs
+
+      - name: Push to NuGet.org
+        run: |
+          dotnet nuget push ./nupkgs/*.nupkg \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
