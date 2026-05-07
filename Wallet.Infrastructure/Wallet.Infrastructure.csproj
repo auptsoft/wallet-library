@@ -9,7 +9,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>Wallet.Infrastructure</PackageId>
-        <Version>1.0.2</Version>
+        <Version>1.0.3</Version>
         <Authors>Andrew Oshodin</Authors>
     </PropertyGroup>
     
