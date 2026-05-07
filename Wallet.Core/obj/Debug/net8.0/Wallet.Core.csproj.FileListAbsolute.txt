@@ -1,0 +1,15 @@
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/bin/Debug/net8.0/Wallet.Core.deps.json
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/bin/Debug/net8.0/Wallet.Core.dll
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/bin/Debug/net8.0/Wallet.Core.pdb
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/bin/Debug/net8.0/Wallet.Contract.dll
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/bin/Debug/net8.0/Wallet.Contract.pdb
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/obj/Debug/net8.0/Wallet.Core.csproj.AssemblyReference.cache
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/obj/Debug/net8.0/Wallet.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/obj/Debug/net8.0/Wallet.Core.AssemblyInfoInputs.cache
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/obj/Debug/net8.0/Wallet.Core.AssemblyInfo.cs
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/obj/Debug/net8.0/Wallet.Core.csproj.CoreCompileInputs.cache
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/obj/Debug/net8.0/Wallet.C.29AC5063.Up2Date
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/obj/Debug/net8.0/Wallet.Core.dll
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/obj/Debug/net8.0/refint/Wallet.Core.dll
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/obj/Debug/net8.0/Wallet.Core.pdb
+/Users/andrewoshodin/s_work/Wallet/Wallet.Core/obj/Debug/net8.0/ref/Wallet.Core.dll

@@ -1,0 +1,12 @@
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/bin/Release/net8.0/Wallet.Contract.deps.json
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/bin/Release/net8.0/Wallet.Contract.dll
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/bin/Release/net8.0/Wallet.Contract.pdb
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Release/net8.0/Wallet.Contract.csproj.AssemblyReference.cache
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Release/net8.0/Wallet.Contract.GeneratedMSBuildEditorConfig.editorconfig
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Release/net8.0/Wallet.Contract.AssemblyInfoInputs.cache
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Release/net8.0/Wallet.Contract.AssemblyInfo.cs
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Release/net8.0/Wallet.Contract.csproj.CoreCompileInputs.cache
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Release/net8.0/Wallet.Contract.dll
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Release/net8.0/refint/Wallet.Contract.dll
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Release/net8.0/Wallet.Contract.pdb
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Release/net8.0/ref/Wallet.Contract.dll

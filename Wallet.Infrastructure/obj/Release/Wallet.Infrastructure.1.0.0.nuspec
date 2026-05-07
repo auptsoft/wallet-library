@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Wallet.Infrastructure</id>
+    <version>1.0.0</version>
+    <authors>Andrew Oshodin</authors>
+    <description>Package Description</description>
+    <repository type="git" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="Wallet.Core" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="BCrypt.Net-Next" version="4.0.3" exclude="Build,Analyzers" />
+        <dependency id="CloudinaryDotNet" version="1.27.8" exclude="Build,Analyzers" />
+        <dependency id="MailKit" version="4.14.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Authentication.JwtBearer" version="8.0.21" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore" version="8.0.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Caching.StackExchangeRedis" version="9.0.10" exclude="Build,Analyzers" />
+        <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="8.0.8" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="/Users/andrewoshodin/s_work/Wallet/Wallet.Infrastructure/bin/Release/net8.0/Wallet.Infrastructure.runtimeconfig.json" target="lib/net8.0/Wallet.Infrastructure.runtimeconfig.json" />
+    <file src="/Users/andrewoshodin/s_work/Wallet/Wallet.Infrastructure/bin/Release/net8.0/Wallet.Infrastructure.dll" target="lib/net8.0/Wallet.Infrastructure.dll" />
+  </files>
+</package>
