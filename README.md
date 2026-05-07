@@ -1,23 +1,53 @@
-    # Wallet.Infrastructure
+# Wallet
 
-The infrastructure layer of the Wallet system, providing EF Core data access, repository implementations, and a unit-of-work for PostgreSQL-backed wallet operations.
+A .NET 8 library for managing digital wallets, fund transfers, and transaction history. Built around a clean three-layer architecture — contract, core, and infrastructure — so you can consume just the layers you need.
 
-## Overview
+## Solution Structure
 
-`Wallet.Infrastructure` is a .NET 8 class library that wires up:
+```
+Wallet/
+├── Wallet.Contract       # DTOs, enums, and service abstractions (no dependencies)
+├── Wallet.Core           # Domain entities, repository interfaces, business logic
+└── Wallet.Infrastructure # EF Core DbContext, repository implementations, DI wiring
+```
 
-- **`WalletDbContext`** — EF Core DbContext with PostgreSQL (Npgsql) backing four tables: `wallets`, `wallet_transactions`, `wallet_transfers`, `idempotency_records`
-- **Repositories** — concrete implementations of the interfaces defined in `Wallet.Core`
-- **`UnitOfWork`** — wraps EF Core transactions with begin/commit/rollback lifecycle
-- **`DependencyInjection`** — a single extension method that registers everything into `IServiceCollection`
+**Dependency direction:** `Wallet.Infrastructure` → `Wallet.Core` → `Wallet.Contract`
 
-The project is part of a three-layer solution:
+---
 
-| Project | Role |
-|---|---|
-| `Wallet.Contract` | DTOs, enums, error codes |
-| `Wallet.Core` | Domain entities, repository interfaces, business logic services |
-| `Wallet.Infrastructure` | EF Core DbContext, repository implementations, DI wiring |
+## Projects
+
+### Wallet.Contract
+
+Shared contracts with no external dependencies beyond Microsoft DI/Configuration abstractions. Reference this package when you need types without pulling in EF Core or business logic.
+
+**Contents:**
+- `IWalletService` / `IWalletQueryService` — service interfaces
+- `WalletDto`, `WalletTransactionDto`, `WalletTransferDto` — read models
+- `TransferRequest` / `TransferResponse` — transfer input/output
+- Enums: `WalletType`, `TransactionDirection`, `TransferStatus`, `TransactionType`
+- `TransferErrorCodes` — typed error code constants
+
+### Wallet.Core
+
+Domain logic and repository interfaces. Depends on `Wallet.Contract`.
+
+**Contents:**
+- Entities: `Wallet`, `WalletTransaction`, `WalletTransfer`, `IdempotencyRecord`
+- Repository interfaces: `IWalletRepository`, `IWalletTransactionRepository`, `IWalletTransferRepository`, `IIdempotencyRecordRepository`, `IUnitOfWork`
+- `WalletService` — wallet creation, lookups, and atomic idempotent fund transfers
+- `WalletQueryService` — paginated queries for transactions and transfers
+- `AddWalletServices()` — DI extension method
+
+### Wallet.Infrastructure
+
+EF Core + PostgreSQL implementation. Depends on `Wallet.Core`.
+
+**Contents:**
+- `WalletDbContext` — maps entities to `wallets`, `wallet_transactions`, `wallet_transfers`, `idempotency_records`
+- Concrete repository implementations for all four entities
+- `UnitOfWork` — wraps EF Core transactions with begin/commit/rollback
+- `AddWalletInfrastructure()` — DI extension method
 
 ---
 
@@ -25,7 +55,6 @@ The project is part of a three-layer solution:
 
 - .NET 8.0
 - PostgreSQL
-- (Optional) Redis — for distributed caching via `Microsoft.Extensions.Caching.StackExchangeRedis`
 
 ---
 
@@ -34,8 +63,9 @@ The project is part of a three-layer solution:
 ### From NuGet
 
 ```bash
-dotnet add package Wallet.Infrastructure
-dotnet add package Wallet.Core
+dotnet add package Wallet.Infrastructure   # includes Wallet.Core and Wallet.Contract
+dotnet add package Wallet.Core             # includes Wallet.Contract only
+dotnet add package Wallet.Contract         # standalone contracts only
 ```
 
 ### From source
@@ -52,7 +82,7 @@ dotnet build
 
 ### 1. Register Services
 
-In `Program.cs` (or your composition root), call both layer extension methods and configure the DbContext:
+In `Program.cs`, configure the DbContext and call both extension methods:
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -66,8 +96,8 @@ var connectionString = builder.Configuration.GetConnectionString("Wallet");
 builder.Services.AddDbContext<WalletDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-builder.Services.AddWalletServices();       // registers IWalletService, IWalletQueryService
-builder.Services.AddWalletInfrastructure(); // registers IUnitOfWork, all repositories
+builder.Services.AddWalletServices();       // IWalletService, IWalletQueryService
+builder.Services.AddWalletInfrastructure(); // IUnitOfWork, all repositories
 ```
 
 ### 2. Run Migrations
@@ -87,44 +117,33 @@ dotnet ef database update --project Wallet.Infrastructure --startup-project Your
 public class WalletController(IWalletService walletService) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> CreateWallet([FromBody] CreateWalletRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateWalletRequest request)
     {
         var wallet = await walletService.CreateWallet(
             userId: request.UserId,
             currency: "NGN",
             walletName: request.WalletName,
-            walletIdentifier: request.Identifier
+            walletIdentifier: request.Identifier,
+            isPlatformWallet: false,
+            allowNegative: false
         );
 
-        return Ok(wallet);
+        return Ok(wallet); // returns WalletDto
     }
 }
 ```
 
-`CreateWallet` returns a `WalletDto`:
+### Look Up a Wallet
 
 ```csharp
-public class WalletDto
-{
-    public Guid Id { get; set; }
-    public string UserId { get; set; }
-    public string WalletName { get; set; }
-    public string WalletIdentifier { get; set; }
-    public decimal Balance { get; set; }
-    public string Currency { get; set; }
-    public bool IsLocked { get; set; }
-    public bool IsPlatformWallet { get; set; }
-    public bool AllowNegative { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
-}
+WalletDto? wallet = await walletService.GetWallet(walletId);
+WalletDto? wallet = await walletService.GetWalletByIdentifier("user-acc-001");
+WalletDto? wallet = await walletService.GetWalletByName("John's Savings");
 ```
 
----
+### Transfer Funds
 
-### Transfer Funds Between Wallets
-
-Transfers are atomic and idempotent. The `Reference` field acts as the idempotency key — submitting the same reference twice with identical parameters is a safe no-op; submitting the same reference with different parameters returns an `InconsistentDuplicate` error.
+Transfers are atomic and idempotent. `Reference` is the idempotency key — replaying the same reference with the same payload is a safe no-op; replaying it with a different payload returns `InconsistentDuplicate`.
 
 ```csharp
 public class TransferController(IWalletService walletService) : ControllerBase
@@ -135,62 +154,33 @@ public class TransferController(IWalletService walletService) : ControllerBase
         var result = await walletService.WalletTransfer(new TransferRequest
         {
             FromWalletId = request.FromWalletId,
-            ToWalletId = request.ToWalletId,
-            Amount = 500.00m,
-            Reference = Guid.NewGuid().ToString(), // your unique idempotency key
-            Narration = "Payment for invoice #1234"
+            ToWalletId   = request.ToWalletId,
+            Amount        = 500.00m,
+            Reference     = Guid.NewGuid().ToString(), // your idempotency key
+            Narration     = "Payment for invoice #1234"
         });
 
         if (!result.IsSuccessfull)
-            return BadRequest(result.Message);
+            return BadRequest(new { result.ErrorCode, result.Message });
 
-        return Ok(result);
+        return Ok(result); // TransferResponse with Reference
     }
 }
 ```
 
-`TransferResponse` shape:
-
-```csharp
-public class TransferResponse
-{
-    public bool IsSuccessfull { get; set; }
-    public string Reference { get; set; }
-    public string Message { get; set; }
-    public string ErrorCode { get; set; }  // see TransferErrorCodes below
-}
-```
-
-**Error Codes (`TransferErrorCodes`):**
+**Transfer error codes (`TransferErrorCodes`):**
 
 | Code | Constant | Meaning |
 |---|---|---|
 | `00` | `Success` | Transfer completed |
 | `01` | `InconsistentDuplicate` | Same reference, different payload |
 | `02` | `Error` | Unexpected server error |
-| `03` | `ToWalletNotFound` | Destination wallet missing |
-| `04` | `FromWalletNotFound` | Source wallet missing |
+| `03` | `ToWalletNotFound` | Destination wallet does not exist |
+| `04` | `FromWalletNotFound` | Source wallet does not exist |
 | `05` | `ToWalletLocked` | Destination wallet is locked |
 | `06` | `FromWalletLocked` | Source wallet is locked |
 
----
-
-### Look Up a Wallet
-
-```csharp
-// By ID
-WalletDto? wallet = await walletService.GetWallet(walletId);
-
-// By unique identifier string
-WalletDto? wallet = await walletService.GetWalletByIdentifier("user-acc-001");
-
-// By name
-WalletDto? wallet = await walletService.GetWalletByName("John's Savings");
-```
-
----
-
-### Query Transactions (via `IWalletQueryService`)
+### Query Transactions
 
 ```csharp
 public class TransactionController(IWalletQueryService queryService) : ControllerBase
@@ -203,43 +193,51 @@ public class TransactionController(IWalletQueryService queryService) : Controlle
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 20)
     {
-        var (transactions, total, pageSize, currentPage) =
+        var (items, total, pageSize, currentPage) =
             await queryService.GetWalletTransactions(walletId, startDate, endDate, page, perPage);
 
-        return Ok(new
-        {
-            data = transactions,
-            total,
-            page = currentPage,
-            perPage = pageSize
-        });
+        return Ok(new { data = items, total, page = currentPage, perPage = pageSize });
     }
 }
 ```
 
----
-
-### Using the Unit of Work Directly
-
-If you need to coordinate multiple repository writes in a single transaction outside of `WalletService`:
+### Query Transfers
 
 ```csharp
-public class CustomOperationService(
+// Paginated list
+var (transfers, total, perPage, page) = await queryService.GetWalletTransfers(
+    toWalletId: null, fromWalletId: myWalletId,
+    startDate: null, endDate: null,
+    page: 1, perPage: 20);
+
+// By reference
+WalletTransferDto? transfer = await queryService.GetWalletTransferByReference("REF-001");
+
+// Transactions belonging to a specific transfer
+List<WalletTransactionDto?> txns =
+    await queryService.GetWalletTransactionsByTransferReference("REF-001");
+```
+
+### Unit of Work (advanced)
+
+Use `IUnitOfWork` directly when you need to coordinate multiple repository writes in a single transaction outside of `WalletService`:
+
+```csharp
+public class CustomService(
     IUnitOfWork unitOfWork,
     IWalletRepository walletRepository,
     IWalletTransactionRepository transactionRepository)
 {
-    public async Task ExecuteCustomOperation(CancellationToken ct = default)
+    public async Task Execute(CancellationToken ct = default)
     {
         await unitOfWork.BeginTransaction(ct);
         try
         {
             var wallet = await walletRepository.GetWallet(someId);
             wallet!.Balance += 100;
-
             transactionRepository.Add(new WalletTransaction { ... });
 
-            await unitOfWork.CommitTransaction(ct); // saves + commits
+            await unitOfWork.CommitTransaction(ct); // SaveChanges + commit
         }
         catch
         {
@@ -250,7 +248,7 @@ public class CustomOperationService(
 }
 ```
 
-> `CommitTransaction` calls `SaveChanges` internally before committing, so you do not need a separate `SaveChanges` call. A rollback is triggered automatically on exception inside `CommitTransaction`.
+> `CommitTransaction` calls `SaveChanges` internally — no separate call needed. If it throws, call `RollbackTransaction` to clean up the transaction handle.
 
 ---
 
@@ -260,7 +258,7 @@ public class CustomOperationService(
 Wallet
  ├── Id (Guid, PK)
  ├── UserId (string, indexed)
- ├── WalletIdentifier (string, unique index)
+ ├── WalletIdentifier (string, unique)
  ├── WalletName (string)
  ├── Balance (decimal 18,2)
  ├── Currency (string)
@@ -273,15 +271,15 @@ Wallet
 WalletTransfer
  ├── Id (Guid, PK)
  ├── FromWalletId → Wallet
- ├── ToWalletId → Wallet
+ ├── ToWalletId   → Wallet
  ├── Amount (decimal 18,2)
- ├── Reference (string, unique index, max 100)
+ ├── Reference (string, unique, max 100)
  ├── Status (Pending | Completed | Failed)
  └── Narration (string?)
 
 WalletTransaction
  ├── Id (Guid, PK)
- ├── WalletId → Wallet (indexed)
+ ├── WalletId   → Wallet (indexed)
  ├── TransferId → WalletTransfer? (indexed)
  ├── Amount (decimal 18,2)
  ├── Direction (Debit | Credit)
@@ -290,35 +288,39 @@ WalletTransaction
 
 IdempotencyRecord
  ├── Id (Guid, PK)
- ├── IdempotencyKey (string, unique index, max 200)
+ ├── IdempotencyKey (string, unique, max 200)
  ├── RequestPath (string)
- └── RequestHash (string — SHA-256 of canonical request payload)
+ └── RequestHash (SHA-256 of canonical request payload)
 ```
 
 ---
 
 ## Configuration Notes
 
-- **Legacy timestamp behaviour** — `AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true)` is set by `AddWalletInfrastructure`. This is required for `DateTime` columns mapped as `timestamp without time zone` in older Npgsql conventions.
-- **Optimistic concurrency** — the `RowVersion` column on `Wallet` is a concurrency token. EF Core will throw `DbUpdateConcurrencyException` if two concurrent updates collide. Handle this at the service layer when building on top of the repository directly.
-- **Redis** — `Microsoft.Extensions.Caching.StackExchangeRedis` is included as a dependency. Configure it separately with `services.AddStackExchangeRedisCache(...)` when needed.
+- **Legacy timestamp behaviour** — `Npgsql.EnableLegacyTimestampBehavior` is enabled automatically by `AddWalletInfrastructure()`, required for `DateTime` columns stored as `timestamp without time zone`.
+- **Optimistic concurrency** — the `RowVersion` column on `Wallet` is a concurrency token. EF Core throws `DbUpdateConcurrencyException` on collisions; handle this in your service layer.
+- **Redis** — `Microsoft.Extensions.Caching.StackExchangeRedis` is included in `Wallet.Infrastructure`. Register it separately with `services.AddStackExchangeRedisCache(...)` when needed.
 
 ---
 
-## Dependencies
+## Package Dependencies
 
-| Package | Version | Purpose |
+| Package | Version | Used in |
 |---|---|---|
-| `Npgsql.EntityFrameworkCore.PostgreSQL` | 8.0.8 | PostgreSQL EF Core provider |
-| `Microsoft.EntityFrameworkCore` | 8.0.8 | ORM |
-| `Microsoft.Extensions.Caching.StackExchangeRedis` | 9.0.10 | Distributed cache |
-| `Microsoft.AspNetCore.Authentication.JwtBearer` | 8.0.21 | JWT auth middleware |
-| `BCrypt.Net-Next` | 4.0.3 | Password hashing |
-| `CloudinaryDotNet` | 1.27.8 | File/image storage |
-| `MailKit` | 4.14.1 | Email sending |
+| `Npgsql.EntityFrameworkCore.PostgreSQL` | 8.0.8 | Infrastructure |
+| `Microsoft.EntityFrameworkCore` | 8.0.8 | Infrastructure |
+| `Microsoft.Extensions.Caching.StackExchangeRedis` | 9.0.10 | Infrastructure |
+| `Microsoft.AspNetCore.Authentication.JwtBearer` | 8.0.21 | Infrastructure |
+| `BCrypt.Net-Next` | 4.0.3 | Infrastructure |
+| `CloudinaryDotNet` | 1.27.8 | Infrastructure |
+| `MailKit` | 4.14.1 | Infrastructure |
+| `Newtonsoft.Json` | 13.0.3 | Core |
+| `Microsoft.Extensions.Logging.Abstractions` | 9.0.9 | Core |
+| `Microsoft.Extensions.DependencyInjection.Abstractions` | 9.0.9 | Contract |
+| `Microsoft.Extensions.Configuration.Abstractions` | 9.0.9 | Contract |
 
 ---
 
-## License
+## Author
 
-Author: Andrew Oshodin
+Andrew Oshodin
