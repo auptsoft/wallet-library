@@ -1,4 +1,4 @@
-# Wallet.Infrastructure
+    # Wallet.Infrastructure
 
 The infrastructure layer of the Wallet system, providing EF Core data access, repository implementations, and a unit-of-work for PostgreSQL-backed wallet operations.
 
