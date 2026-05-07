@@ -3,6 +3,7 @@ name: Publish NuGet Packages
 on:
   push:
     tags: ["v*"]
+    branches: [ "main" ]
 
 jobs:
   publish:
@@ -16,6 +17,10 @@ jobs:
 
       - name: Pack
         run: |
+          dotnet build Wallet.Contract/Wallet.Contract.csproj -c Release
+          dotnet build Wallet.Core/Wallet.Core.csproj -c Release -o
+          dotnet build Wallet.Infrastructure/Wallet.Infrastructure.csproj -c Release
+          
           dotnet pack Wallet.Contract/Wallet.Contract.csproj -c Release -o ./nupkgs
           dotnet pack Wallet.Core/Wallet.Core.csproj -c Release -o ./nupkgs
           dotnet pack Wallet.Infrastructure/Wallet.Infrastructure.csproj -c Release -o ./nupkgs
