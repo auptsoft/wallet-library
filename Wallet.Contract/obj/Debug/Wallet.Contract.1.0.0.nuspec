@@ -3,9 +3,9 @@
   <metadata>
     <id>Wallet.Contract</id>
     <version>1.0.0</version>
-    <authors>YourName</authors>
+    <authors>Andrew Oshodin</authors>
     <description>Package Description</description>
-    <repository type="git" />
+    <repository type="git" commit="6c8b98f3cd3de32a2f7033fa1f71510c65eb12f1" />
     <dependencies>
       <group targetFramework="net8.0">
         <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="9.0.9" exclude="Build,Analyzers" />

@@ -10,3 +10,4 @@
 /Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Debug/net8.0/refint/Wallet.Contract.dll
 /Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Debug/net8.0/Wallet.Contract.pdb
 /Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Debug/net8.0/ref/Wallet.Contract.dll
+/Users/andrewoshodin/s_work/Wallet/Wallet.Contract/obj/Debug/net8.0/Wallet.Contract.sourcelink.json

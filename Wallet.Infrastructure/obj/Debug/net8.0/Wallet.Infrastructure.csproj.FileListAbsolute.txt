@@ -17,3 +17,4 @@
 /Users/andrewoshodin/s_work/Wallet/Wallet.Infrastructure/obj/Debug/net8.0/Wallet.Infrastructure.pdb
 /Users/andrewoshodin/s_work/Wallet/Wallet.Infrastructure/obj/Debug/net8.0/Wallet.Infrastructure.genruntimeconfig.cache
 /Users/andrewoshodin/s_work/Wallet/Wallet.Infrastructure/obj/Debug/net8.0/ref/Wallet.Infrastructure.dll
+/Users/andrewoshodin/s_work/Wallet/Wallet.Infrastructure/obj/Debug/net8.0/Wallet.Infrastructure.sourcelink.json

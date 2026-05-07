@@ -5,7 +5,7 @@
     <version>1.0.0</version>
     <authors>Andrew Oshodin</authors>
     <description>Package Description</description>
-    <repository type="git" />
+    <repository type="git" commit="6c8b98f3cd3de32a2f7033fa1f71510c65eb12f1" />
     <dependencies>
       <group targetFramework="net8.0">
         <dependency id="Wallet.Core" version="1.0.0" exclude="Build,Analyzers" />
