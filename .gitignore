@@ -1,1 +1,23 @@
+## Build outputs
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+*.nupkg
+*.snupkg
 
+## Rider / JetBrains
+.idea/
+
+## macOS
+.DS_Store
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio
+.vs/
